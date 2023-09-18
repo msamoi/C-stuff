@@ -28,26 +28,14 @@ public static class Cesar
     }
     private static void Encrypt()
     {
-        var shiftAmount = InOut.GetShiftAmount();
         Console.WriteLine("Enter text to encrypt: ");
-        string toShift = InOut.GetStringInput();
+        var toShift = InOut.GetStringInput();
+        byte[] shiftAmount =  { InOut.GetShiftAmount() };
 
-        var textBytes = Encoding.UTF8.GetBytes(toShift);
-
-        foreach (var textByte in textBytes)
-        {
-            Console.Write(textByte + " ");
-        }
-
-        for (var i = 0; i < textBytes.Count(); i++)
-        {
-            textBytes[i] = (byte)((textBytes[i] + shiftAmount) % 256);
-        }
-
-
+        var encText = Crypto.Encrypt(toShift, shiftAmount);
         Console.WriteLine($"Cesar encrypted text with shift {shiftAmount}");
         Console.WriteLine("----------------------------------------------");
-        Console.WriteLine(Convert.ToBase64String(textBytes));
+        Console.WriteLine(encText);
         Console.WriteLine("----------------------------------------------");
     }
 
@@ -56,15 +44,11 @@ public static class Cesar
     {
         Console.Write("Enter encrypted text to decrypt: ");
         var encryptedText = InOut.GetStringInput();
-        var encryptedBytes = Convert.FromBase64String(encryptedText);
+        byte[] shiftAmount =  { InOut.GetShiftAmount() };
 
-        var shiftAmount = InOut.GetShiftAmount();
+        var decText = Crypto.Decrypt(encryptedText, shiftAmount);
 
-        for (var i = 0; i < encryptedBytes.Length; i++)
-        {
-            encryptedBytes[i] = (byte) (((encryptedBytes[i] - shiftAmount) + 256) % 256);
-        }
         Console.WriteLine($"Cesar decrypted text from {encryptedText} with shift {shiftAmount}");
-        Console.WriteLine(Encoding.UTF8.GetString(encryptedBytes));
+        Console.WriteLine(decText);
     }
 }

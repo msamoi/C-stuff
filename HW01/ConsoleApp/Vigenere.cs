@@ -31,20 +31,17 @@ public static class Vigenere
     private static void Encrypt()
     {
         Console.Write("Enter string to encrypt: ");
-        string toEncrypt = InOut.GetStringInput();
+        var toEncrypt = InOut.GetStringInput();
+        
         Console.Write("Enter encryption key: ");
-        string key = InOut.GetStringInput();
+        var key = InOut.GetStringInput();
         var keyBytes = Encoding.UTF8.GetBytes(key);
 
-        var textBytes = Encoding.UTF8.GetBytes(toEncrypt);
-        for (var i = 0; i < textBytes.Length; i++)
-        {
-            textBytes[i] = (byte)((textBytes[i] + keyBytes[i % keyBytes.Length]) % 256);
-        }
+        var encText = Crypto.Encrypt(toEncrypt, keyBytes); 
         
         Console.WriteLine($"Vigenere encrypted text with key {key}");
         Console.WriteLine("----------------------------------------------");
-        Console.WriteLine(Convert.ToBase64String(textBytes));
+        Console.WriteLine(encText);
         Console.WriteLine("----------------------------------------------"); 
     }
     
@@ -52,17 +49,15 @@ public static class Vigenere
     {
         Console.Write("Enter encrypted text to decrypt: ");
         var encryptedText = InOut.GetStringInput();
-        var encryptedBytes = Convert.FromBase64String(encryptedText);
 
         Console.Write("Enter key to decrypt with: ");
         var key = InOut.GetStringInput();
         var keyBytes = Encoding.UTF8.GetBytes(key);
 
-        for (var i = 0; i < encryptedBytes.Length; i++)
-        {
-            encryptedBytes[i] = (byte) (((encryptedBytes[i] - keyBytes[i % keyBytes.Length]) + 256) % 256);
-        }
+        var decText = Crypto.Decrypt(encryptedText, keyBytes);
+
+
         Console.WriteLine($"Cesar decrypted text from {encryptedText} with key {key}");
-        Console.WriteLine(Encoding.UTF8.GetString(encryptedBytes));
+        Console.WriteLine(decText);
     }
 }
