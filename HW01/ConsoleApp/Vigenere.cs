@@ -30,7 +30,9 @@ public static class Vigenere
 
     private static void Encrypt()
     {
+        Console.Write("Enter string to encrypt: ");
         string toEncrypt = InOut.GetStringInput();
+        Console.Write("Enter encryption key: ");
         string key = InOut.GetStringInput();
         var keyBytes = Encoding.UTF8.GetBytes(key);
 
@@ -48,9 +50,11 @@ public static class Vigenere
     
     private static void Decrypt()
     {
+        Console.Write("Enter encrypted text to decrypt: ");
         var encryptedText = InOut.GetStringInput();
         var encryptedBytes = Convert.FromBase64String(encryptedText);
 
+        Console.Write("Enter key to decrypt with: ");
         var key = InOut.GetStringInput();
         var keyBytes = Encoding.UTF8.GetBytes(key);
 

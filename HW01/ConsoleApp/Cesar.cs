@@ -29,6 +29,7 @@ public static class Cesar
     private static void Encrypt()
     {
         var shiftAmount = InOut.GetShiftAmount();
+        Console.WriteLine("Enter text to encrypt: ");
         string toShift = InOut.GetStringInput();
 
         var textBytes = Encoding.UTF8.GetBytes(toShift);
@@ -53,6 +54,7 @@ public static class Cesar
 
     private static void Decrypt()
     {
+        Console.Write("Enter encrypted text to decrypt: ");
         var encryptedText = InOut.GetStringInput();
         var encryptedBytes = Convert.FromBase64String(encryptedText);
 

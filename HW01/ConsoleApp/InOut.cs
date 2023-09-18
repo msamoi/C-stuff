@@ -34,7 +34,6 @@ public static class InOut
     {
         do
         {
-            Console.Write("Enter string to encrypt/decrypt: ");
             var input = Console.ReadLine();
             if (String.IsNullOrEmpty(input))
             {
