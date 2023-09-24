@@ -33,7 +33,7 @@ public static class Cesar
         byte[] shiftAmount =  { InOut.GetShiftAmount() };
 
         var encText = Crypto.Encrypt(toShift, shiftAmount);
-        Console.WriteLine($"Cesar encrypted text with shift {shiftAmount}");
+        Console.WriteLine($"Cesar encrypted text with shift {shiftAmount[0]}");
         Console.WriteLine("----------------------------------------------");
         Console.WriteLine(encText);
         Console.WriteLine("----------------------------------------------");
@@ -48,7 +48,7 @@ public static class Cesar
 
         var decText = Crypto.Decrypt(encryptedText, shiftAmount);
 
-        Console.WriteLine($"Cesar decrypted text from {encryptedText} with shift {shiftAmount}");
+        Console.WriteLine($"Cesar decrypted text from {encryptedText} with shift {shiftAmount[0]}");
         Console.WriteLine(decText);
     }
 }

@@ -57,7 +57,7 @@ public static class Vigenere
         var decText = Crypto.Decrypt(encryptedText, keyBytes);
 
 
-        Console.WriteLine($"Cesar decrypted text from {encryptedText} with key {key}");
+        Console.WriteLine($"Vigenere decrypted text from {encryptedText} with key {key}");
         Console.WriteLine(decText);
     }
 }
