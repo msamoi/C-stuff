@@ -4,7 +4,7 @@ using ConsoleApp;
 
 Console.WriteLine("Hello, World!");
 
-long[] res = Primes.GetPrimes(125259141336590519);
+long[] res = Primes.GetPrimes( 654571684092169);
 
 Console.WriteLine("The prime numbers are: " + res[0] + " and " + res[1] + ".");
 
