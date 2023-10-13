@@ -1,7 +1,7 @@
 
 namespace ConsoleApp;
 
-public class KeyExchange
+public static class KeyExchange
 {
     public static void GetSymmetricKey()
     {
@@ -36,11 +36,10 @@ public class KeyExchange
 
     private static ulong[] GetPrivateNumbers()
     {
-        ulong a, b;
         Console.WriteLine("Enter the private number for the first person (a):");
-        a = InOut.GetNumberFromUser();
+        var a = InOut.GetNumberFromUser();
         Console.WriteLine("Enter the private number for the second person (b):");
-        b = InOut.GetNumberFromUser();
+        var b = InOut.GetNumberFromUser();
         ulong[] outvar = { a, b };
         return outvar;
     }
