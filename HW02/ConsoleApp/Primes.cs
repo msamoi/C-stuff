@@ -20,10 +20,10 @@ public static class Primes
             outvar[0] = 2;
             outvar[1] = res;
         }
-        for (ulong i = 3; i < boundary; i += 2)
+        for (ulong i = 3; i <= boundary; i += 2)
         {
-            if (!IsPrime(i)) continue;
             if (toFactor % i != 0) continue;
+            if (!IsPrime(i)) continue;
             outvar[0] = i;
             outvar[1] = toFactor / i;
             break;
