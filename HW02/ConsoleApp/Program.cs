@@ -10,7 +10,7 @@ do
     switch (userChoice)
     {
         case "D":
-            KeyExchange.GetSymmetricKey();
+            KeyExchange.Init();
             break;
         case "F":
             Primes.GetPrimes();

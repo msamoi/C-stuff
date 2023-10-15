@@ -3,15 +3,50 @@ namespace ConsoleApp;
 
 public static class KeyExchange
 {
-    public static void GetSymmetricKey()
+    public static void Init()
     {
-        var pubNumbers = GetPublicNumbers();
-        var privNumbers = GetPrivateNumbers();
+        string userChoice;
+        do
+        {
+            Console.WriteLine("[I]nput values yourself or generate [R]andom ones?");
+            userChoice = InOut.GetChoice();
+            switch (userChoice)
+            {
+                case "I":
+                    GetSymmetricKeyByInput();
+                    break;
+                case "R":
+                    GetRandomSymmetricKey();
+                    break;
+            }
+        } while (userChoice != "X");
+    }
+
+    private static void GetRandomSymmetricKey()
+    {
+        ulong[] pubNumbers = { 0, 0 };
+        var rand = new Random();
+        const ulong maxPubNumber = 100; 
+        // pubNumbers[0] = rand.GetRandomPrime(maxPubNumber);
+        pubNumbers[0] = 31;
+        pubNumbers[1] = rand.FindPrimitive(pubNumbers[0]);
+        var maxPrivNumber = (ulong)Math.Floor(Math.Log(ulong.MaxValue, pubNumbers[1]));
+        ulong[] privNumbers = { rand.NextLong(maxPrivNumber), rand.NextLong(maxPrivNumber) };
         var publicKeys = GeneratePublicKeys(pubNumbers, privNumbers);
         GenerateSymmetricKey(pubNumbers[0], publicKeys, privNumbers);
     }
 
-    private static ulong[] GetPublicNumbers()
+    private static void GetSymmetricKeyByInput()
+    {
+        const ulong maxPubNumber = 100;
+        var pubNumbers = GetPublicNumbers(maxPubNumber);
+        ulong maxPrivNumber = (ulong)Math.Floor(Math.Log(ulong.MaxValue, pubNumbers[1])); 
+        var privNumbers = GetPrivateNumbers(maxPrivNumber);
+        var publicKeys = GeneratePublicKeys(pubNumbers, privNumbers);
+        GenerateSymmetricKey(pubNumbers[0], publicKeys, privNumbers);
+    }
+
+    private static ulong[] GetPublicNumbers(ulong max)
     {
         ulong p, g;
         while (true)
@@ -19,6 +54,7 @@ public static class KeyExchange
             Console.WriteLine("Enter the prime number P");
             p = InOut.GetNumberFromUser();
             if (!Primes.IsPrime(p)) continue;
+            if (p > max) continue;
             break;
         }
 
@@ -34,12 +70,25 @@ public static class KeyExchange
         return outvar;
     }
 
-    private static ulong[] GetPrivateNumbers()
+    private static ulong[] GetPrivateNumbers(ulong max)
     {
-        Console.WriteLine("Enter the private number for the first person (a):");
-        var a = InOut.GetNumberFromUser();
-        Console.WriteLine("Enter the private number for the second person (b):");
-        var b = InOut.GetNumberFromUser();
+        ulong a, b;
+        while (true)
+        {
+            Console.WriteLine("Enter the private number for the first person (a):");
+            a = InOut.GetNumberFromUser();
+            if (a > max) continue;
+            break;
+        }
+
+        while (true)
+        {
+            Console.WriteLine("Enter the private number for the second person (b):");
+            b = InOut.GetNumberFromUser();
+            if (b > max) continue;
+            break;
+        }
+        
         ulong[] outvar = { a, b };
         return outvar;
     }
@@ -54,10 +103,10 @@ public static class KeyExchange
 
     private static void GenerateSymmetricKey(ulong p, IReadOnlyList<double> pubKeys, IReadOnlyList<ulong> privNum)
     {
-        var symmKey1 = (ulong)Math.Pow(pubKeys[1], privNum[0]) % p;
-        var symmKey2 = (ulong)Math.Pow(pubKeys[0], privNum[1]) % p;
+        var symmKey1 = Math.Pow(pubKeys[1], privNum[0]) % p;
+        var symmKey2 = Math.Pow(pubKeys[0], privNum[1]) % p;
 
-        if (symmKey1 == symmKey2)
+        if (symmKey1.Equals(symmKey2))
         {
             Console.WriteLine("The symmetric key is " + symmKey1 + ".");
         }
