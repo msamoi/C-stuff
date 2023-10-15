@@ -29,6 +29,24 @@ public static class Rand
         return random.NextLong(ulong.MaxValue);
     }
     
+    static ulong Power(ulong x, ulong y, ulong p)
+    {
+        ulong res = 1;
+        
+        x %= p;
+ 
+        while (y > 0) 
+        {
+            if (y % 2 == 1) 
+            {
+                res = (res * x) % p;
+            }
+            y >>= 1; // y = y/2
+            x = (x * x) % p;
+        }
+        return res;
+    }
+    
     static void FindPrimefactors(HashSet<ulong> s, ulong n) 
     {
         while (n % 2 == 0) 
@@ -65,13 +83,12 @@ public static class Rand
  
         FindPrimefactors(s, phi);
 
-        for (ulong r = 2; r <= phi; r++)
-        {
+        while(true) {
             var randomNum = random.NextLong(phi);
             bool flag = false;
             foreach (ulong a in s) 
             {
-                if (Math.Pow(randomNum, phi / a) % n == 1) 
+                if (Power(randomNum, phi / a, n) == 1) 
                 {
                     flag = true;
                     break;
@@ -82,6 +99,5 @@ public static class Rand
                 return randomNum;
             }
         }
-        return 0;
     }
 }
