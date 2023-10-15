@@ -41,7 +41,7 @@ public static class KeyExchange
 
     private static void GetSymmetricKeyByInput()
     {
-        ulong limit = (ulong)Math.Sqrt(ulong.MaxValue);
+        ulong limit = ulong.MaxValue;
         var pubNumbers = GetPublicNumbers(limit);
         var privNumbers = GetPrivateNumbers(limit);
         var publicKeys = GeneratePublicKeys(pubNumbers, privNumbers);
