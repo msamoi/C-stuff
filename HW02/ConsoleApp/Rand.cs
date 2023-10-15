@@ -7,7 +7,7 @@ public static class Rand
     {
         while(true)
         {
-            ulong p = random.NextLong(max);
+            var p = random.NextLong(max);
             if (p % 2 == 0) continue;
 
             if (Primes.IsPrime(p)) return p;
@@ -17,7 +17,7 @@ public static class Rand
     {
         if (max == 0) return 0;
         
-        byte[] buf = new byte[8];
+        var buf = new byte[8];
         random.NextBytes(buf);
         var ulongRand = BitConverter.ToUInt64(buf, 0);
         
@@ -48,8 +48,8 @@ public static class Rand
         }
         return res;
     }
-    
-    static void FindPrimefactors(HashSet<ulong> s, ulong n) 
+
+    private static void FindPrimefactors(HashSet<ulong> s, ulong n) 
     {
         while (n % 2 == 0) 
         {
@@ -74,7 +74,7 @@ public static class Rand
  
     public static ulong FindPrimitive(this Random random, ulong n) 
     {
-        HashSet<ulong> s = new HashSet<ulong>();
+        var s = new HashSet<ulong>();
  
         if (Primes.IsPrime(n) == false) 
         {
@@ -87,15 +87,7 @@ public static class Rand
 
         while(true) {
             var randomNum = random.NextLong(phi);
-            bool flag = false;
-            foreach (ulong a in s) 
-            {
-                if (Power(randomNum, phi / a, n) == 1) 
-                {
-                    flag = true;
-                    break;
-                }
-            }
+            var flag = s.Any(a => Power(randomNum, phi / a, n) == 1);
             if (flag == false)
             {
                 return randomNum;

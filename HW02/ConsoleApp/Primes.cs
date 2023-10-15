@@ -6,7 +6,7 @@ public static class Primes
     public static void GetPrimes()
     {
         Console.WriteLine("Enter p1*p2 to factorize:");
-        ulong toFactor = InOut.GetNumberFromUser();
+        var toFactor = InOut.GetNumberFromUser();
         ulong[] outvar = { 0, 0 };
         var boundary = Math.Sqrt(toFactor);
         if (toFactor % 2 == 0)
@@ -49,7 +49,7 @@ public static class Primes
 
     public static bool IsPrimitiveRoot(ulong p, ulong g)
     {
-        List<double> mods = new List<double>();
+        var mods = new List<double>();
         for (ulong i = 1; i < p; i++)
         {
             var tmp = Rand.Power(g, i, p);

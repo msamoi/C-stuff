@@ -15,6 +15,6 @@ public static class InOut
    public static string GetChoice()
    {
       var userChoice = Console.ReadLine()?.ToUpper().Trim();
-      return String.IsNullOrEmpty(userChoice) ? "" : userChoice;
+      return string.IsNullOrEmpty(userChoice) ? "" : userChoice;
    }
 }
