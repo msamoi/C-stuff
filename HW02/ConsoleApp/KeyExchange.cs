@@ -8,10 +8,12 @@ public static class KeyExchange
         string userChoice;
         do
         {
-            Console.WriteLine("[I]nput values yourself or generate [R]andom ones?");
+            Console.WriteLine("[I]nput values yourself or generate [R]andom ones, or e[X]it?");
             userChoice = InOut.GetChoice();
             switch (userChoice)
             {
+                case "X":
+                    break;
                 case "I":
                     GetSymmetricKeyByInput();
                     break;
