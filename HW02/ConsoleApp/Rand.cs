@@ -29,7 +29,7 @@ public static class Rand
         return random.NextLong(ulong.MaxValue);
     }
     
-    static ulong Power(ulong x, ulong y, ulong p)
+    public static ulong Power(ulong x, ulong y, ulong p)
     {
         ulong res = 1;
         
