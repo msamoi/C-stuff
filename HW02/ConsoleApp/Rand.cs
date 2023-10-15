@@ -31,7 +31,7 @@ public static class Rand
     
     public static ulong Power(ulong x, ulong y, ulong p)
     {
-        ulong res = 1;
+        UInt128 res = 1;
         
         UInt128 nbase = x;
         
@@ -41,12 +41,12 @@ public static class Rand
         {
             if (y % 2 == 1) 
             {
-                res = (res * (ulong)nbase) % p;
+                res = (res * nbase) % p;
             }
             y >>= 1; 
             nbase = (nbase * nbase) % p;
         }
-        return res;
+        return (ulong)res;
     }
 
     private static void FindPrimefactors(HashSet<ulong> s, ulong n) 
@@ -54,15 +54,15 @@ public static class Rand
         while (n % 2 == 0) 
         {
             s.Add(2);
-            n = n / 2;
+            n /= 2;
         }
         
-        for (ulong i = 3; i <= Math.Sqrt(n); i = i + 2) 
+        for (ulong i = 3; i <= Math.Sqrt(n); i += 2) 
         {
             while (n % i == 0) 
             {
                 s.Add(i);
-                n = n / i;
+                n /= i;
             }
         }
  
