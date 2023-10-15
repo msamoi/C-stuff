@@ -26,22 +26,22 @@ public static class KeyExchange
     {
         ulong[] pubNumbers = { 0, 0 };
         var rand = new Random();
-        const ulong maxPubNumber = 100; 
-        // pubNumbers[0] = rand.GetRandomPrime(maxPubNumber);
-        pubNumbers[0] = 31;
+        const ulong limit = 100000;
+        pubNumbers[0] = rand.GetRandomPrime(limit);
         pubNumbers[1] = rand.FindPrimitive(pubNumbers[0]);
-        var maxPrivNumber = (ulong)Math.Floor(Math.Log(ulong.MaxValue, pubNumbers[1]));
-        ulong[] privNumbers = { rand.NextLong(maxPrivNumber), rand.NextLong(maxPrivNumber) };
+        Console.WriteLine("P is " + pubNumbers[0] + " and G is " + pubNumbers[1]);
+        ulong[] privNumbers = { rand.NextLong(limit), rand.NextLong(limit) };
+        Console.WriteLine("a is " + privNumbers[0] + " and b is " + privNumbers[1]);
         var publicKeys = GeneratePublicKeys(pubNumbers, privNumbers);
+        Console.WriteLine("Public keys: x is " + publicKeys[0] + " and y is " + publicKeys[1]);
         GenerateSymmetricKey(pubNumbers[0], publicKeys, privNumbers);
     }
 
     private static void GetSymmetricKeyByInput()
     {
-        const ulong maxPubNumber = 100;
-        var pubNumbers = GetPublicNumbers(maxPubNumber);
-        ulong maxPrivNumber = (ulong)Math.Floor(Math.Log(ulong.MaxValue, pubNumbers[1])); 
-        var privNumbers = GetPrivateNumbers(maxPrivNumber);
+        const ulong limit = 100000;
+        var pubNumbers = GetPublicNumbers(limit);
+        var privNumbers = GetPrivateNumbers(limit);
         var publicKeys = GeneratePublicKeys(pubNumbers, privNumbers);
         GenerateSymmetricKey(pubNumbers[0], publicKeys, privNumbers);
     }
@@ -93,18 +93,19 @@ public static class KeyExchange
         return outvar;
     }
 
-    private static double[] GeneratePublicKeys(IReadOnlyList<ulong> pubNum, IReadOnlyList<ulong> privNum)
+    private static ulong[] GeneratePublicKeys(IReadOnlyList<ulong> pubNum, IReadOnlyList<ulong> privNum)
     {
-        var x = Math.Pow(pubNum[1], privNum[0]) % pubNum[0];
-        var y = Math.Pow(pubNum[1], privNum[1]) % pubNum[0];
-        double[] outvar = { x, y };
+        var x = Rand.Power(pubNum[1], privNum[0], pubNum[0]);
+        var y = Rand.Power(pubNum[1], privNum[1], pubNum[0]);
+        
+        ulong[] outvar = { x, y };
         return outvar;
     }
 
-    private static void GenerateSymmetricKey(ulong p, IReadOnlyList<double> pubKeys, IReadOnlyList<ulong> privNum)
+    private static void GenerateSymmetricKey(ulong p, IReadOnlyList<ulong> pubKeys, IReadOnlyList<ulong> privNum)
     {
-        var symmKey1 = Math.Pow(pubKeys[1], privNum[0]) % p;
-        var symmKey2 = Math.Pow(pubKeys[0], privNum[1]) % p;
+        var symmKey1 = Rand.Power(pubKeys[1], privNum[0], p);
+        var symmKey2 = Rand.Power(pubKeys[0], privNum[1], p);
 
         if (symmKey1.Equals(symmKey2))
         {
