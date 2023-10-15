@@ -28,7 +28,7 @@ public static class KeyExchange
     {
         ulong[] pubNumbers = { 0, 0 };
         var rand = new Random();
-        ulong limit = ulong.MaxValue;
+        const ulong limit = ulong.MaxValue;
         pubNumbers[0] = rand.GetRandomPrime(limit);
         pubNumbers[1] = rand.FindPrimitive(pubNumbers[0]);
         Console.WriteLine("P is " + pubNumbers[0] + " and G is " + pubNumbers[1]);
@@ -41,7 +41,7 @@ public static class KeyExchange
 
     private static void GetSymmetricKeyByInput()
     {
-        ulong limit = ulong.MaxValue;
+        const ulong limit = ulong.MaxValue;
         var pubNumbers = GetPublicNumbers(limit);
         var privNumbers = GetPrivateNumbers(limit);
         var publicKeys = GeneratePublicKeys(pubNumbers, privNumbers);
