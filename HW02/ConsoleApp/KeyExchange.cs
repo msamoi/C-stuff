@@ -28,7 +28,7 @@ public static class KeyExchange
     {
         ulong[] pubNumbers = { 0, 0 };
         var rand = new Random();
-        ulong limit = (ulong)Math.Sqrt(ulong.MaxValue);
+        ulong limit = ulong.MaxValue;
         pubNumbers[0] = rand.GetRandomPrime(limit);
         pubNumbers[1] = rand.FindPrimitive(pubNumbers[0]);
         Console.WriteLine("P is " + pubNumbers[0] + " and G is " + pubNumbers[1]);

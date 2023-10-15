@@ -33,16 +33,18 @@ public static class Rand
     {
         ulong res = 1;
         
-        x %= p;
+        UInt128 nbase = x;
+        
+        nbase %= p;
  
         while (y > 0) 
         {
             if (y % 2 == 1) 
             {
-                res = (res * x) % p;
+                res = (res * (ulong)nbase) % p;
             }
-            y >>= 1; // y = y/2
-            x = (x * x) % p;
+            y >>= 1; 
+            nbase = (nbase * nbase) % p;
         }
         return res;
     }

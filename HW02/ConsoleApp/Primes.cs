@@ -52,7 +52,7 @@ public static class Primes
         List<double> mods = new List<double>();
         for (ulong i = 1; i < p; i++)
         {
-            var tmp = Math.Pow(g, i) % p;
+            var tmp = Rand.Power(g, i, p);
             if (mods.Contains(tmp)) return false;
             mods.Add(tmp);
         }
