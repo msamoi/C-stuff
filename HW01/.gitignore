@@ -5,8 +5,6 @@
 
 # just ignore the entire .idea folder and some other stuff
 .idea/*
-HW01.sln.DotSettings.user
-ConsoleApp/ConsoleApp.csproj
 
 # User-specific stuff
 .idea/**/workspace.xml
