@@ -1,4 +1,5 @@
 ﻿
+using System.Globalization;
 using System.Text;
 
 namespace HW03;
@@ -102,12 +103,12 @@ public struct RSA
         }
 
         var outVar = Math.ModPow(textNum, e, n);
-        return outVar.ToString();
+        return outVar.ToString("X");
     }
 
     private string Decrypt(string toDecrypt)
     {
-        if (!ulong.TryParse(toDecrypt, out var textNum))
+        if (!ulong.TryParse(toDecrypt, NumberStyles.HexNumber, null, out var textNum))
         {
             Console.WriteLine("Error parsing input!");
             return "";
