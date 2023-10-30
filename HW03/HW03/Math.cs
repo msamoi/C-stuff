@@ -1,6 +1,6 @@
 ﻿namespace HW03;
 
-public class Math
+public static class Math
 {
     public static ulong ModPow(ulong x, ulong y, ulong p)
     {
@@ -40,37 +40,38 @@ public class Math
 
     public static class ModInv
     {
-        public static Int128 x, y;
-        public static Int128 GcdExtended(ulong a, ulong b)
+        private static Int128 _x, _y;
+
+        private static Int128 GcdExtended(ulong a, ulong b)
         {
             
             if (a == 0) {
-                x = 0;
-                y = 1;
+                _x = 0;
+                _y = 1;
                 return b;
             }
             
             Int128 gcd = GcdExtended(b % a, a);
-            Int128 x1 = x;
-            Int128 y1 = y;
+            Int128 x1 = _x;
+            Int128 y1 = _y;
             
-            x = (y1 - (b / a) * x1);
-            y = x1;
+            _x = (y1 - (b / a) * x1);
+            _y = x1;
  
             return gcd;
         }
  
         // Function to find modulo inverse of a
-        public static ulong ModInverse(ulong A, ulong M)
+        public static ulong ModInverse(ulong a, ulong m)
         {
-            var g = GcdExtended(A, M);
+            var g = GcdExtended(a, m);
             Int128 res = 0;
             if (g != 1)
                 Console.Write("Inverse doesn't exist");
             else {
  
                 // M is added to handle negative x
-                res = (x % M + M) % M;
+                res = (_x % m + m) % m;
             }
             return (ulong)res;
         }
