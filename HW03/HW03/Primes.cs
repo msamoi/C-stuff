@@ -8,12 +8,7 @@ public static class Primes
         if (n < 2) return false;
         // first check divisibility by first 10 primes
         ulong[] ar = { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29 };
-        foreach (var prime in ar)
-        {
-            if (n % prime == 0) return false;
-        }
-
-        return MilRab(n, 20, r); // only use miller-rabin if number isn't divisible by first primes
+        return ar.All(prime => n % prime != 0) && MilRab(n, 20, r); // only use miller-rabin if number isn't divisible by first primes
     }
 
     // n is the number to check, k is the certainty to check

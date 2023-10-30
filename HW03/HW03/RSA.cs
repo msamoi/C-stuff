@@ -4,18 +4,18 @@ using System.Text;
 
 namespace HW03;
 
-public struct RSA
+public struct Rsa
 {
-    public ulong p, q, n, lamn, e, d;
+    private ulong _p, _q, _n, _lamn, _e, _d;
 
     public void GenerateRandomKeys(Random r)
     {
-        p = r.GetRandomPrime(uint.MaxValue);
-        q = r.GetRandomPrime(uint.MaxValue);
-        n = p * q;
-        lamn = Math.Lcm(p - 1, q - 1);
-        e = 65537;
-        d = Math.ModInv.ModInverse(e, lamn);
+        _p = r.GetRandomPrime(uint.MaxValue);
+        _q = r.GetRandomPrime(uint.MaxValue);
+        _n = _p * _q;
+        _lamn = Math.Lcm(_p - 1, _q - 1);
+        _e = 65537;
+        _d = Math.ModInv.ModInverse(_e, _lamn);
     }
 
     public void EncryptBlocks()
@@ -23,21 +23,12 @@ public struct RSA
         Console.WriteLine("Enter string to encrypt:");
         var toEncrypt = InOut.GetStringInput();
         var encryptedBlocks = new List<string>();
-
-        if (toEncrypt.Length < 4)
+        
+        for (var i = 0; i < toEncrypt.Length; i += 4)
         {
-            encryptedBlocks.Add(Encrypt(toEncrypt));
-        }
-        else
-        {
-            for (int i = 0; i < toEncrypt.Length; i += 4)
-            {
-                if (i + 4 > toEncrypt.Length)
-                {
-                    encryptedBlocks.Add(Encrypt(toEncrypt.Substring(i, toEncrypt.Length - i)));
-                }
-                else encryptedBlocks.Add(Encrypt(toEncrypt.Substring(i, 4)));
-            }
+            encryptedBlocks.Add(i + 4 > toEncrypt.Length
+                ? Encrypt(toEncrypt.Substring(i, toEncrypt.Length - i))
+                : Encrypt(toEncrypt.Substring(i, 4)));
         }
         
         var maxLen = encryptedBlocks.Aggregate("", (max, cur) => max.Length > cur.Length ? max : cur).Length;
@@ -45,7 +36,7 @@ public struct RSA
         if (maxLen < 10) outString += "0";
         outString += maxLen.ToString();
         
-        for (int i = 0; i < encryptedBlocks.Count; i++)
+        for (var i = 0; i < encryptedBlocks.Count; i++)
         {
             while (encryptedBlocks[i].Length < maxLen)
             {
@@ -74,7 +65,7 @@ public struct RSA
         toDecrypt = toDecrypt.Remove(0, 2);
 
         var decryptedText = "";
-        for (int i = 0; i <= toDecrypt.Length - blockLength; i += blockLength)
+        for (var i = 0; i <= toDecrypt.Length - blockLength; i += blockLength)
         {
             decryptedText += Decrypt(toDecrypt.Substring(i, blockLength));
         }
@@ -102,7 +93,7 @@ public struct RSA
             return "";
         }
 
-        var outVar = Math.ModPow(textNum, e, n);
+        var outVar = Math.ModPow(textNum, _e, _n);
         return outVar.ToString("X");
     }
 
@@ -114,7 +105,7 @@ public struct RSA
             return "";
         }
 
-        var decNum = Math.ModPow(textNum, d, n);
+        var decNum = Math.ModPow(textNum, _d, _n);
         var toParse = decNum.ToString();
 
         toParse = toParse.Remove(0, 1);
