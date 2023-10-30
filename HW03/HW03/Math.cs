@@ -2,7 +2,7 @@
 
 public class Math
 {
-    public static ulong Power(ulong x, ulong y, ulong p)
+    public static ulong ModPow(ulong x, ulong y, ulong p)
     {
         UInt128 res = 1;
         

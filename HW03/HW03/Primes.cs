@@ -26,7 +26,7 @@ public static class Primes
         {
             var a = r.NextLong(n - 1) + 1;
             var temp = s;
-            var mod = Math.Power(a, temp, n);
+            var mod = Math.ModPow(a, temp, n);
             while (temp != n - 1 && mod != 1 && mod != n - 1)
             {
                 mod = (mod * mod) % n;

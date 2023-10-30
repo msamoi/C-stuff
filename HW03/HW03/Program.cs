@@ -35,10 +35,10 @@ do
     switch (userChoice)
     {
         case "E":
-            keys.Encrypt();
+            keys.EncryptBlocks();
             break;
         case "D":
-            keys.Decrypt();
+            keys.DecryptBlocks();
             break;
         case "X":
             break;
