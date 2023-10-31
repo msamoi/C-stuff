@@ -10,19 +10,48 @@ public struct Rsa
 
     public void GenerateRandomKeys(Random r)
     {
-        _p = r.GetRandomPrime(uint.MaxValue);
-        _q = r.GetRandomPrime(uint.MaxValue);
+        _p = r.GetRandomPrime(2000000);
+        _q = r.GetRandomPrime(2000000);
         _n = _p * _q;
         _lamn = Math.Lcm(_p - 1, _q - 1);
         _e = 65537;
         _d = Math.ModInv.ModInverse(_e, _lamn);
+        Console.WriteLine("Generated keys:\n" +
+                          $"n: {_n}\n" +
+                          $"e: {_e}\n" +
+                          $"d: {_d}\n");
     }
-    
+
+    public void GetKeysFromUser(Random r)
+    {
+        do
+        {
+            Console.WriteLine("Enter the prime number p:");
+            _p = InOut.GetNumberInput();
+        } while (!Primes.IsPrime(_p, r));
+
+        do
+        {
+            Console.WriteLine("Enter the prime number q:");
+            _q = InOut.GetNumberInput();
+        } while (!Primes.IsPrime(_q, r));
+
+        _n = _p * _q;
+        _lamn = Math.Lcm(_p - 1, _q - 1);
+        do
+        {
+            Console.WriteLine("Enter the integer e (must also be prime)");
+            _e = InOut.GetNumberInput();
+        } while (!Primes.IsPrime(_e, r));
+
+        _d = Math.ModInv.ModInverse(_e, _lamn);
+    }
+
     /*
      The Encrypt function encrypts a string into ciphertext in blocks.
      Each block is 4 bytes long. The input string is deconstructed into bytes, and is then encrypted with the public key
      in 4 byte blocks. The construction of the blocks is detailed above the EncryptBlocks function.
-     
+
      The encrypted blocks don't have a fixed length. To tackle this, during encryption, the longest encrypted block is
      found and every other block is padded with leading zeros, which are easily lost by just parsing the block as a
      number. The normalized block length is then placed as the first two digits of the whole ciphertext. e.g.

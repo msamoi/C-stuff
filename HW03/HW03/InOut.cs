@@ -18,6 +18,19 @@ public static class InOut
         } while (true);
     }
 
+    public static ulong GetNumberInput()
+    {
+        string? input;
+        ulong outVar = 0;
+        do
+        {
+            Console.WriteLine("Enter an integer (max 64 bits):");
+            input = Console.ReadLine();
+        } while (!ulong.TryParse(input, out outVar));
+
+        return outVar;
+    }
+
     public static ulong[] GetUlongArrayInput()
     {
         ulong[] outVar;
