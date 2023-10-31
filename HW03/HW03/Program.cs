@@ -12,10 +12,10 @@ do
     switch (userChoice)
     {
         case "E":
-            keys.EncryptBlocks();
+            keys.Encrypt();
             break;
         case "D":
-            keys.DecryptBlocks();
+            keys.Decrypt();
             break;
         case "X":
             break;
