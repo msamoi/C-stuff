@@ -181,6 +181,12 @@ public struct Rsa
             Console.WriteLine("Error parsing input!");
             return null;
         }
+        
+        if (textNum > _n)
+        {
+            Console.WriteLine("Number to encrypt cannot be bigger than n!");
+            return null;
+        }
 
         var outVar = Math.ModPow(textNum, _e, _n);
         return outVar.ToString("X");

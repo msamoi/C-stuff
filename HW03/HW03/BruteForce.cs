@@ -16,7 +16,7 @@ public static class BruteForce
         Console.WriteLine("Enter the encrypted text to decrypt:");
         var toDecrypt = InOut.GetStringInput();
         
-        var testString = "AB";
+        const string testString = "AB";
         var encTest = Encrypt(testString);
         if (encTest == null) return;
 
@@ -118,6 +118,11 @@ public static class BruteForce
             return null;
         }
 
+        if (textNum > _n)
+        {
+            Console.WriteLine("Number to encrypt cannot be bigger than n!");
+            return null;
+        }
         var outVar = Math.ModPow(textNum, _e, _n);
         return outVar.ToString("X");
     }
