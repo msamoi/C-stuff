@@ -38,9 +38,10 @@ public struct Rsa
 
         for (var i = 0; i < bytes.Length; i += 6)
         {
+            // feed the string into EncryptBlock 6 bytes at a time
             var tmp = i + 6 > toEncrypt.Length
-                ? EncryptBlock(bytes[i..])
-                : EncryptBlock(bytes[i..(i + 6)]);
+                ? EncryptBlock(bytes[i..]) // if there are less than 6 bytes remaining, just encrypt the remainder
+                : EncryptBlock(bytes[i..(i + 6)]); // if there are more than 6 bytes remaining, encrypt the next 6
             if (tmp == null)
             {
                 Console.WriteLine("Encryption failed!");
@@ -49,18 +50,22 @@ public struct Rsa
             encryptedBlocks.Add(tmp);
         }
         
+        // find the length of the longest encrypted block
         var maxLen = encryptedBlocks.Aggregate("", (max, cur) => max.Length > cur.Length ? max : cur).Length;
         var outString = "";
+        
+        // set first two characters of the encrypted string to the block length
         if (maxLen < 10) outString += "0";
         outString += maxLen.ToString();
         
         for (var i = 0; i < encryptedBlocks.Count; i++)
         {
+            // pad each encrypted block to be the same length
             while (encryptedBlocks[i].Length < maxLen)
             {
                 encryptedBlocks[i] = encryptedBlocks[i].Insert(0, "0");
             }
-
+            // append each padded block to the output string
             outString += encryptedBlocks[i];
         }
 
@@ -83,13 +88,17 @@ public struct Rsa
         while (true)
         {
             toDecrypt = InOut.GetStringInput();
+            // get the first two characters and write them to blockLength
             if (int.TryParse(toDecrypt.AsSpan(0, 2), out blockLength)) break;
             Console.WriteLine("Error parsing block length!");
         }
 
+        // remove the block length from the string as its no longer needed
         toDecrypt = toDecrypt.Remove(0, 2);
 
+        // store the decrypted text as bytes at first because blocks might not line up with multi-byte charcters
         var decryptedBytes = new List<byte>();
+        // feed each block into the DecryptBlock function
         for (var i = 0; i <= toDecrypt.Length - blockLength; i += blockLength)
         {
             var decryptedBlock = DecryptBlock(toDecrypt.Substring(i, blockLength));
@@ -98,10 +107,12 @@ public struct Rsa
                 Console.WriteLine("Decryption failed!");
                 return;
             }
+            // add each block of decrypted bytes to the list of bytes
             decryptedBytes.AddRange(decryptedBlock);
         }
         
         Console.WriteLine("Decrypted text:");
+        // finally convert the entire byte array to a string when the entire structure is complete
         Console.WriteLine(Encoding.UTF8.GetString(decryptedBytes.ToArray()));
     }
 
