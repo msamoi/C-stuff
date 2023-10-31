@@ -35,12 +35,18 @@ public struct Rsa
         var toEncrypt = InOut.GetStringInput();
         var bytes = Encoding.UTF8.GetBytes(toEncrypt);
         var encryptedBlocks = new List<string>();
-        
+
         for (var i = 0; i < bytes.Length; i += 6)
         {
-            encryptedBlocks.Add(i + 6 > toEncrypt.Length
+            var tmp = i + 6 > toEncrypt.Length
                 ? EncryptBlock(bytes[i..])
-                : EncryptBlock(bytes[i..(i+6)]));
+                : EncryptBlock(bytes[i..(i + 6)]);
+            if (tmp == null)
+            {
+                Console.WriteLine("Encryption failed!");
+                return;
+            }
+            encryptedBlocks.Add(tmp);
         }
         
         var maxLen = encryptedBlocks.Aggregate("", (max, cur) => max.Length > cur.Length ? max : cur).Length;
@@ -111,21 +117,29 @@ public struct Rsa
      consistency is the reason for using byte count instead of char count for blocks. When we consider the whole string
      as an array of bytes for everything except displaying it, then we can easily handle multi-byte characters.
      */
-    private string EncryptBlock(IEnumerable<byte> bytes)
+    private string? EncryptBlock(IEnumerable<byte> bytes)
     {
         var toNumber = "1";
         
         foreach (var cByte in bytes)
         {
-            if (cByte < 10) toNumber += "00";
-            else if (cByte < 100) toNumber += "0";
+            switch (cByte)
+            {
+                case < 10:
+                    toNumber += "00";
+                    break;
+                case < 100:
+                    toNumber += "0";
+                    break;
+            }
+
             toNumber += cByte.ToString();
         }
 
         if (!ulong.TryParse(toNumber, out var textNum))
         {
             Console.WriteLine("Error parsing input!");
-            return "";
+            return null;
         }
 
         var outVar = Math.ModPow(textNum, _e, _n);
