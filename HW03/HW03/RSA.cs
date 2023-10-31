@@ -24,10 +24,10 @@ public struct Rsa
      in 4 byte blocks. The construction of the blocks is detailed above the EncryptBlocks function.
      
      The encrypted blocks don't have a fixed length. To tackle this, during encryption, the longest encrypted block is
-     found and every other block is padded with leading zeros. The normalized block length is then placed as the first
-     two digits of the whole ciphertext. e.g. 19(large amount of numbers) would mean that each block is 19 digits long.
-     These two leading digits are trimmed off the ciphertext before starting to decrypt blocks, and exist only for the
-     function itself.
+     found and every other block is padded with leading zeros, which are easily lost by just parsing the block as a
+     number. The normalized block length is then placed as the first two digits of the whole ciphertext. e.g.
+     19(large amount of numbers) would mean that each block is 19 digits long. These two leading digits are trimmed off
+     the ciphertext before starting to decrypt blocks, and exist only for the function itself.
      */
     public void Encrypt()
     {
@@ -36,11 +36,11 @@ public struct Rsa
         var bytes = Encoding.UTF8.GetBytes(toEncrypt);
         var encryptedBlocks = new List<string>();
         
-        for (var i = 0; i < bytes.Length; i += 4)
+        for (var i = 0; i < bytes.Length; i += 6)
         {
-            encryptedBlocks.Add(i + 4 > toEncrypt.Length
+            encryptedBlocks.Add(i + 6 > toEncrypt.Length
                 ? EncryptBlock(bytes[i..])
-                : EncryptBlock(bytes[i..(i+4)]));
+                : EncryptBlock(bytes[i..(i+6)]));
         }
         
         var maxLen = encryptedBlocks.Aggregate("", (max, cur) => max.Length > cur.Length ? max : cur).Length;
