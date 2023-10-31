@@ -10,8 +10,8 @@ public struct Rsa
 
     public void GenerateRandomKeys(Random r)
     {
-        _p = r.GetRandomPrime(2000000);
-        _q = r.GetRandomPrime(2000000);
+        _p = r.GetRandomPrime(uint.MaxValue);
+        _q = r.GetRandomPrime(uint.MaxValue);
         _n = _p * _q;
         _lamn = Math.Lcm(_p - 1, _q - 1);
         _e = 65537;
