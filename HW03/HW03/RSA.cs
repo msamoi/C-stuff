@@ -94,7 +94,16 @@ public struct Rsa
         // at least 5-digit n values are pretty much mandatory, as encrypting one byte is a 4-digit operation due to how
         // our block encryption works
         var blockSize = (int)double.Floor(_n.ToString().Length / 3) - 1;
-        if (blockSize > 6) blockSize = 6;
+        
+        switch (blockSize)
+        {
+            case < 1:
+                blockSize = 1;
+                break;
+            case > 6:
+                blockSize = 6;
+                break;
+        }
 
         for (var i = 0; i < bytes.Length; i += blockSize)
         {
