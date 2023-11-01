@@ -76,6 +76,9 @@ public struct Rsa
         var bytes = Encoding.UTF8.GetBytes(toEncrypt);
         var encryptedBlocks = new List<string>();
 
+        // variable block length based on the n value
+        // at least 5-digit n values are pretty much mandatory, as encrypting one byte is a 4-digit operation due to how
+        // our block encryption works
         var blockSize = (int)double.Floor(_n.ToString().Length / 3);
         if (blockSize > 6) blockSize = 6;
 
