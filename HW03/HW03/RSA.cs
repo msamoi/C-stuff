@@ -70,6 +70,10 @@ public struct Rsa
         } while (!Primes.IsPrime(_e, _r));
 
         _d = Math.ModInv.ModInverse(_e, _lamn);
+        Console.WriteLine("Generated keys:\n" +
+                          $"n: {_n}\n" +
+                          $"e: {_e}\n" +
+                          $"d: {_d}\n");
     }
 
     /*

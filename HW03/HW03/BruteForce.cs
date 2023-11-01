@@ -37,11 +37,24 @@ public static class BruteForce
         var bytes = Encoding.UTF8.GetBytes(toEncrypt);
         var encryptedBlocks = new List<string>();
 
-        for (var i = 0; i < bytes.Length; i += 6)
+        var blockSize = (int)double.Floor(_n.ToString().Length / 3) - 1;
+        
+        switch (blockSize)
         {
-            var tmp = i + 6 > toEncrypt.Length
-                ? EncryptBlock(bytes[i..])
-                : EncryptBlock(bytes[i..(i + 6)]);
+            case < 1:
+                blockSize = 1;
+                break;
+            case > 6:
+                blockSize = 6;
+                break;
+        }
+
+        for (var i = 0; i < bytes.Length; i += blockSize)
+        {
+            // feed the string into EncryptBlock 6 bytes at a time
+            var tmp = i + blockSize > toEncrypt.Length
+                ? EncryptBlock(bytes[i..]) // if there are less than 6 bytes remaining, just encrypt the remainder
+                : EncryptBlock(bytes[i..(i + blockSize)]); // if there are more than 6 bytes remaining, encrypt the next 6
             if (tmp == null)
             {
                 Console.WriteLine("Encryption failed!");
