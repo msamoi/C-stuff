@@ -35,19 +35,33 @@ public struct Rsa
 
     public void GetKeysFromUser()
     {
+        var success = false;
         do
         {
-            Console.WriteLine("Enter the prime number p:");
-            _p = InOut.GetNumberInput();
-        } while (!Primes.IsPrime(_p, _r));
+            do
+            {
+                Console.WriteLine("Enter the prime number p:");
+                _p = InOut.GetNumberInput();
+            } while (!Primes.IsPrime(_p, _r));
 
-        do
-        {
-            Console.WriteLine("Enter the prime number q:");
-            _q = InOut.GetNumberInput();
-        } while (!Primes.IsPrime(_q, _r));
+            do
+            {
+                Console.WriteLine("Enter the prime number q:");
+                _q = InOut.GetNumberInput();
+            } while (!Primes.IsPrime(_q, _r));
 
-        _n = _p * _q;
+            _n = _p * _q;
+            if (_n.ToString().Length < 5)
+            {
+                Console.WriteLine("n is less than 5 digits long. " +
+                                  "This is not enough to encrypt text. " +
+                                  "Please enter larger values for p and q.");
+                continue;
+            }
+
+            success = true;
+        } while (!success);
+
         _lamn = Math.Lcm(_p - 1, _q - 1);
         do
         {
