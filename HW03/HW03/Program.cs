@@ -25,7 +25,6 @@ return;
 
 Rsa? RsaInit()
 {
-    var r = new Random();
     var keys = new Rsa();
     string userChoice;
     do
@@ -35,10 +34,10 @@ Rsa? RsaInit()
         switch (userChoice)
         {
             case "G":
-                keys.GenerateRandomKeys(r);
+                keys.GenerateRandomKeys();
                 return keys;
             case "I":
-                keys.GetKeysFromUser(r);
+                keys.GetKeysFromUser();
                 return keys;
             case "X":
                 break;

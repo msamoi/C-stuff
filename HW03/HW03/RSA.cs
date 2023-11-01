@@ -7,11 +7,22 @@ namespace HW03;
 public struct Rsa
 {
     private ulong _p, _q, _n, _lamn, _e, _d;
+    private readonly Random _r = new();
 
-    public void GenerateRandomKeys(Random r)
+    public Rsa()
     {
-        _p = r.GetRandomPrime(uint.MaxValue);
-        _q = r.GetRandomPrime(uint.MaxValue);
+        _p = 0;
+        _q = 0;
+        _n = 0;
+        _lamn = 0;
+        _e = 0;
+        _d = 0;
+    }
+
+    public void GenerateRandomKeys()
+    {
+        _p = _r.GetRandomPrime(uint.MaxValue);
+        _q = _r.GetRandomPrime(uint.MaxValue);
         _n = _p * _q;
         _lamn = Math.Lcm(_p - 1, _q - 1);
         _e = 65537;
@@ -22,19 +33,19 @@ public struct Rsa
                           $"d: {_d}\n");
     }
 
-    public void GetKeysFromUser(Random r)
+    public void GetKeysFromUser()
     {
         do
         {
             Console.WriteLine("Enter the prime number p:");
             _p = InOut.GetNumberInput();
-        } while (!Primes.IsPrime(_p, r));
+        } while (!Primes.IsPrime(_p, _r));
 
         do
         {
             Console.WriteLine("Enter the prime number q:");
             _q = InOut.GetNumberInput();
-        } while (!Primes.IsPrime(_q, r));
+        } while (!Primes.IsPrime(_q, _r));
 
         _n = _p * _q;
         _lamn = Math.Lcm(_p - 1, _q - 1);
@@ -42,7 +53,7 @@ public struct Rsa
         {
             Console.WriteLine("Enter the integer e (must also be prime)");
             _e = InOut.GetNumberInput();
-        } while (!Primes.IsPrime(_e, r));
+        } while (!Primes.IsPrime(_e, _r));
 
         _d = Math.ModInv.ModInverse(_e, _lamn);
     }
@@ -125,7 +136,7 @@ public struct Rsa
         // remove the block length from the string as its no longer needed
         toDecrypt = toDecrypt.Remove(0, 2);
 
-        // store the decrypted text as bytes at first because blocks might not line up with multi-byte charcters
+        // store the decrypted text as bytes at first because blocks might not line up with multi-byte characters
         var decryptedBytes = new List<byte>();
         // feed each block into the DecryptBlock function
         for (var i = 0; i <= toDecrypt.Length - blockLength; i += blockLength)
@@ -159,7 +170,7 @@ public struct Rsa
      */
     private string? EncryptBlock(IEnumerable<byte> bytes)
     {
-        var toNumber = "1";
+        var toNumber = _r.Next(1, 10).ToString();
         
         foreach (var cByte in bytes)
         {
