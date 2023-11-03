@@ -15,75 +15,26 @@ public static class BruteForce
         _e = InOut.GetNumberInput();
         Console.WriteLine("Enter the encrypted text to decrypt:");
         var toDecrypt = InOut.GetStringInput();
-        
-        const string testString = "Aia!saiasadu.";
-        var encTest = Encrypt(testString);
-        if (encTest == null) return;
+        var r = new Random();
 
-        ulong d = 0;
-        
-        for (ulong i = 0; i < ulong.MaxValue; i++)
+        ulong p = 0, q = 0;
+
+        var boundary = System.Math.Sqrt(_n);
+        for (ulong i = 3; i <= boundary; i += 2)
         {
-            var decTest = Decrypt(encTest, i);
-            if (decTest == testString)
-            {
-                d = i;
-                break;
-            }
+            if (_n % i != 0) continue;
+            if (!Primes.IsPrime(i, r)) continue;
+            p = i;
+            q = _n / i;
+            break;
         }
+
+        var lamn = Math.Lcm(p - 1, q - 1);
+        var d = Math.ModInv.ModInverse(_e, lamn);
 
         var decText = Decrypt(toDecrypt, d);
         if (decText == null) return;
         Console.WriteLine("The private key is " + d + ".\nThe encrypted text is " + decText);
-    }
-
-    private static string? Encrypt(in string toEncrypt)
-    {
-        var bytes = Encoding.UTF8.GetBytes(toEncrypt);
-        var encryptedBlocks = new List<string>();
-
-        var blockSize = _n.ToString().Length / 3 - 1;
-        
-        switch (blockSize)
-        {
-            case < 1:
-                blockSize = 1;
-                break;
-            case > 6:
-                blockSize = 6;
-                break;
-        }
-
-        for (var i = 0; i < bytes.Length; i += blockSize)
-        {
-            // feed the string into EncryptBlock 6 bytes at a time
-            var tmp = i + blockSize > bytes.Length
-                ? EncryptBlock(bytes[i..]) // if there are less than 6 bytes remaining, just encrypt the remainder
-                : EncryptBlock(bytes[i..(i + blockSize)]); // if there are more than 6 bytes remaining, encrypt the next 6
-            if (tmp == null)
-            {
-                Console.WriteLine("Encryption failed!");
-                return null;
-            }
-            encryptedBlocks.Add(tmp);
-        }
-        
-        var maxLen = encryptedBlocks.Aggregate("", (max, cur) => max.Length > cur.Length ? max : cur).Length;
-        var outString = "";
-        
-        if (maxLen < 10) outString += "0";
-        outString += maxLen.ToString();
-        
-        for (var i = 0; i < encryptedBlocks.Count; i++)
-        {
-            while (encryptedBlocks[i].Length < maxLen)
-            {
-                encryptedBlocks[i] = encryptedBlocks[i].Insert(0, "0");
-            }
-            outString += encryptedBlocks[i];
-        }
-        
-        return outString;
     }
 
     private static string? Decrypt(in string toDecrypt, ulong d)
@@ -110,40 +61,6 @@ public static class BruteForce
         return Encoding.UTF8.GetString(decryptedBytes.ToArray());
     }
     
-    private static string? EncryptBlock(in IEnumerable<byte> bytes)
-    {
-        var toNumber = "1";
-        
-        foreach (var cByte in bytes)
-        {
-            switch (cByte)
-            {
-                case < 10:
-                    toNumber += "00";
-                    break;
-                case < 100:
-                    toNumber += "0";
-                    break;
-            }
-
-            toNumber += cByte.ToString();
-        }
-
-        if (!ulong.TryParse(toNumber, out var textNum))
-        {
-            Console.WriteLine("Error parsing input!");
-            return null;
-        }
-
-        if (textNum > _n)
-        {
-            Console.WriteLine("Number to encrypt cannot be bigger than n!");
-            return null;
-        }
-        var outVar = Math.ModPow(textNum, _e, _n);
-        return outVar.ToString("X");
-    }
-    
     private static byte[]? DecryptBlock(in string toDecrypt, in ulong d)
     {
         if (!ulong.TryParse(toDecrypt, NumberStyles.HexNumber, null, out var textNum))
@@ -163,5 +80,21 @@ public static class BruteForce
         }
         
         return bytes;
+    }
+
+    private static IEnumerable<ulong> Range(ulong fromInclusive, ulong toExclusive)
+    {
+        for (var i = fromInclusive; i < toExclusive; i++) yield return i;
+    }
+
+    private static void ParallelFor(ulong fromInclusive, ulong toExclusive, Action<ulong, ParallelLoopState> body)
+    {
+        Parallel.ForEach(
+            Range(fromInclusive, toExclusive),
+            new ParallelOptions
+            {
+                MaxDegreeOfParallelism = -1,
+            },
+            body);
     }
 }
