@@ -6,7 +6,7 @@ namespace HW03;
 
 public static class BruteForce
 {
-    private static ulong _e, _n, _d;
+    private static ulong _e, _n;
     public static void Run()
     {
         Console.WriteLine("Enter the modulus n part of public key:");
@@ -16,28 +16,33 @@ public static class BruteForce
         Console.WriteLine("Enter the encrypted text to decrypt:");
         var toDecrypt = InOut.GetStringInput();
         
-        const string testString = "AB";
+        const string testString = "Aia!saiasadu.";
         var encTest = Encrypt(testString);
         if (encTest == null) return;
 
+        ulong d = 0;
+        
         for (ulong i = 0; i < ulong.MaxValue; i++)
         {
-            _d = i;
-            var decTest = Decrypt(encTest);
-            if (decTest == testString) break;
+            var decTest = Decrypt(encTest, i);
+            if (decTest == testString)
+            {
+                d = i;
+                break;
+            }
         }
 
-        var decText = Decrypt(toDecrypt);
+        var decText = Decrypt(toDecrypt, d);
         if (decText == null) return;
-        Console.WriteLine("The private key is " + _d + ".\nThe encrypted text is " + decText);
+        Console.WriteLine("The private key is " + d + ".\nThe encrypted text is " + decText);
     }
 
-    private static string? Encrypt(string toEncrypt)
+    private static string? Encrypt(in string toEncrypt)
     {
         var bytes = Encoding.UTF8.GetBytes(toEncrypt);
         var encryptedBlocks = new List<string>();
 
-        var blockSize = (int)double.Floor(_n.ToString().Length / 3) - 1;
+        var blockSize = _n.ToString().Length / 3 - 1;
         
         switch (blockSize)
         {
@@ -52,7 +57,7 @@ public static class BruteForce
         for (var i = 0; i < bytes.Length; i += blockSize)
         {
             // feed the string into EncryptBlock 6 bytes at a time
-            var tmp = i + blockSize > toEncrypt.Length
+            var tmp = i + blockSize > bytes.Length
                 ? EncryptBlock(bytes[i..]) // if there are less than 6 bytes remaining, just encrypt the remainder
                 : EncryptBlock(bytes[i..(i + blockSize)]); // if there are more than 6 bytes remaining, encrypt the next 6
             if (tmp == null)
@@ -81,7 +86,7 @@ public static class BruteForce
         return outString;
     }
 
-    private static string? Decrypt(string toDecrypt)
+    private static string? Decrypt(in string toDecrypt, ulong d)
     {
         if (!int.TryParse(toDecrypt.AsSpan(0, 2), out var blockLength))
         {
@@ -89,12 +94,11 @@ public static class BruteForce
             return null;
         }
         
-        toDecrypt = toDecrypt.Remove(0, 2);
         
         var decryptedBytes = new List<byte>();
-        for (var i = 0; i <= toDecrypt.Length - blockLength; i += blockLength)
+        for (var i = 2; i <= toDecrypt.Length - blockLength; i += blockLength)
         {
-            var decryptedBlock = DecryptBlock(toDecrypt.Substring(i, blockLength));
+            var decryptedBlock = DecryptBlock(toDecrypt.Substring(i, blockLength), d);
             if (decryptedBlock == null)
             {
                 Console.WriteLine("Decryption failed!");
@@ -106,7 +110,7 @@ public static class BruteForce
         return Encoding.UTF8.GetString(decryptedBytes.ToArray());
     }
     
-    private static string? EncryptBlock(IEnumerable<byte> bytes)
+    private static string? EncryptBlock(in IEnumerable<byte> bytes)
     {
         var toNumber = "1";
         
@@ -140,7 +144,7 @@ public static class BruteForce
         return outVar.ToString("X");
     }
     
-    private static byte[]? DecryptBlock(string toDecrypt)
+    private static byte[]? DecryptBlock(in string toDecrypt, in ulong d)
     {
         if (!ulong.TryParse(toDecrypt, NumberStyles.HexNumber, null, out var textNum))
         {
@@ -148,10 +152,9 @@ public static class BruteForce
             return null;
         }
 
-        var decNum = Math.ModPow(textNum, _d, _n);
-        var toParse = decNum.ToString();
-
-        toParse = toParse.Remove(0, 1);
+        var decNum = Math.ModPow(textNum, d, _n);
+        var toParse = decNum.ToString().Remove(0, 1);
+        
         var bytes = new byte[toParse.Length / 3];
 
         for (var i = 3; i <= toParse.Length; i += 3)

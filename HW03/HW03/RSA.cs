@@ -97,7 +97,7 @@ public struct Rsa
         // variable block length based on the n value
         // at least 5-digit n values are pretty much mandatory, as encrypting one byte is a 4-digit operation due to how
         // our block encryption works
-        var blockSize = (int)double.Floor(_n.ToString().Length / 3) - 1;
+        var blockSize = _n.ToString().Length / 3 - 1;
         
         switch (blockSize)
         {
@@ -112,7 +112,7 @@ public struct Rsa
         for (var i = 0; i < bytes.Length; i += blockSize)
         {
             // feed the string into EncryptBlock 6 bytes at a time
-            var tmp = i + blockSize > toEncrypt.Length
+            var tmp = i + blockSize > bytes.Length
                 ? EncryptBlock(bytes[i..]) // if there are less than 6 bytes remaining, just encrypt the remainder
                 : EncryptBlock(bytes[i..(i + blockSize)]); // if there are more than 6 bytes remaining, encrypt the next 6
             if (tmp == null)
