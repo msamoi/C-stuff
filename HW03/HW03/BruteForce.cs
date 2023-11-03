@@ -81,20 +81,4 @@ public static class BruteForce
         
         return bytes;
     }
-
-    private static IEnumerable<ulong> Range(ulong fromInclusive, ulong toExclusive)
-    {
-        for (var i = fromInclusive; i < toExclusive; i++) yield return i;
-    }
-
-    private static void ParallelFor(ulong fromInclusive, ulong toExclusive, Action<ulong, ParallelLoopState> body)
-    {
-        Parallel.ForEach(
-            Range(fromInclusive, toExclusive),
-            new ParallelOptions
-            {
-                MaxDegreeOfParallelism = -1,
-            },
-            body);
-    }
 }
