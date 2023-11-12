@@ -224,10 +224,7 @@ namespace WebApp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("EncTypeId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Key")
+                    b.Property<Guid>("KeyId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Text")
@@ -241,7 +238,7 @@ namespace WebApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EncTypeId");
+                    b.HasIndex("KeyId");
 
                     b.HasIndex("UserId");
 
@@ -275,10 +272,40 @@ namespace WebApp.Migrations
                         });
                 });
 
+            modelBuilder.Entity("WebApp.Models.Key", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("EncTypeId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EncTypeId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Keys");
+                });
+
             modelBuilder.Entity("WebApp.Models.PlainText", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("KeyId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Text")
@@ -291,6 +318,8 @@ namespace WebApp.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("KeyId");
 
                     b.HasIndex("UserId");
 
@@ -359,6 +388,25 @@ namespace WebApp.Migrations
 
             modelBuilder.Entity("WebApp.Models.CipherText", b =>
                 {
+                    b.HasOne("WebApp.Models.Key", "Key")
+                        .WithMany()
+                        .HasForeignKey("KeyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebApp.Models.AppUser", "User")
+                        .WithMany("Ciphertext")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Key");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("WebApp.Models.Key", b =>
+                {
                     b.HasOne("WebApp.Models.EncType", "EncType")
                         .WithMany()
                         .HasForeignKey("EncTypeId")
@@ -366,7 +414,7 @@ namespace WebApp.Migrations
                         .IsRequired();
 
                     b.HasOne("WebApp.Models.AppUser", "User")
-                        .WithMany("Ciphertext")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -378,11 +426,19 @@ namespace WebApp.Migrations
 
             modelBuilder.Entity("WebApp.Models.PlainText", b =>
                 {
+                    b.HasOne("WebApp.Models.Key", "Key")
+                        .WithMany()
+                        .HasForeignKey("KeyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("WebApp.Models.AppUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Key");
 
                     b.Navigation("User");
                 });

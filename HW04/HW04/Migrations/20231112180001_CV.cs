@@ -178,13 +178,38 @@ namespace WebApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Keys",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Text = table.Column<string>(type: "TEXT", maxLength: 256, nullable: false),
+                    EncTypeId = table.Column<int>(type: "INTEGER", nullable: false),
+                    UserId = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Keys", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Keys_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Keys_EncTypes_EncTypeId",
+                        column: x => x.EncTypeId,
+                        principalTable: "EncTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CipherTexts",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     Text = table.Column<string>(type: "TEXT", maxLength: 256, nullable: false),
-                    Key = table.Column<string>(type: "TEXT", nullable: true),
-                    EncTypeId = table.Column<int>(type: "INTEGER", nullable: false),
+                    KeyId = table.Column<Guid>(type: "TEXT", nullable: false),
                     UserId = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
@@ -197,9 +222,9 @@ namespace WebApp.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CipherTexts_EncTypes_EncTypeId",
-                        column: x => x.EncTypeId,
-                        principalTable: "EncTypes",
+                        name: "FK_CipherTexts_Keys_KeyId",
+                        column: x => x.KeyId,
+                        principalTable: "Keys",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -210,6 +235,7 @@ namespace WebApp.Migrations
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     Text = table.Column<string>(type: "TEXT", maxLength: 256, nullable: false),
+                    KeyId = table.Column<Guid>(type: "TEXT", nullable: false),
                     UserId = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
@@ -219,6 +245,12 @@ namespace WebApp.Migrations
                         name: "FK_PlainTexts_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PlainTexts_Keys_KeyId",
+                        column: x => x.KeyId,
+                        principalTable: "Keys",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -275,14 +307,29 @@ namespace WebApp.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_CipherTexts_EncTypeId",
+                name: "IX_CipherTexts_KeyId",
                 table: "CipherTexts",
-                column: "EncTypeId");
+                column: "KeyId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CipherTexts_UserId",
                 table: "CipherTexts",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Keys_EncTypeId",
+                table: "Keys",
+                column: "EncTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Keys_UserId",
+                table: "Keys",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PlainTexts_KeyId",
+                table: "PlainTexts",
+                column: "KeyId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PlainTexts_UserId",
@@ -315,10 +362,13 @@ namespace WebApp.Migrations
                 name: "PlainTexts");
 
             migrationBuilder.DropTable(
-                name: "EncTypes");
+                name: "Keys");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "EncTypes");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

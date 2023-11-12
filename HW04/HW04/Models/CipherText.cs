@@ -9,10 +9,9 @@ public class CipherText
     [MaxLength(256)]
     public string Text { get; set; }
     
-    public string? Key { get; set; }
-    public int EncTypeId { get; set; }
-    public EncType? EncType { get; set; }
+    public Guid KeyId { get; set; }
+    public Key? Key { get; set; }
     
-    public string? UserId { get; set; }
+    public string UserId { get; set; }
     public AppUser? User { get; set; }
 }

@@ -7,4 +7,6 @@ public class AppUser : IdentityUser
     public ICollection<CipherText>? Ciphertext { get; set; }
 
     public IdentityRole? Role { get; set; }
+    
+    
 }

@@ -9,6 +9,7 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
     public DbSet<CipherText> CipherTexts { get; set; }
     public DbSet<PlainText> PlainTexts { get; set; }
     public DbSet<EncType> EncTypes { get; set; }
+    public DbSet<Key> Keys { get; set; }
     
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)

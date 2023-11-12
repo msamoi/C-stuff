@@ -38,24 +38,6 @@ namespace WebApp.Controllers
             return View(res);
         }
 
-        // GET: PlainText/Details/5
-        public async Task<IActionResult> Details(Guid? id)
-        {
-            if (id == null || _context.PlainTexts == null)
-            {
-                return NotFound();
-            }
-
-            var plainText = await _context.PlainTexts
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (plainText == null)
-            {
-                return NotFound();
-            }
-
-            return View(plainText);
-        }
-
         // GET: PlainText/Create
         public IActionResult Create()
         {

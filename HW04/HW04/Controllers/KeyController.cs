@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -11,131 +10,127 @@ using WebApp.Data;
 using WebApp.Models;
 using WebApp.ViewModels;
 
-namespace WebApp.Controllers
+namespace HW04.Controllers
 {
-    [Authorize]
-    public class CipherTextController : Controller
+    public class KeyController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public CipherTextController(ApplicationDbContext context)
+        public KeyController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: CipherText
+        // GET: Key
         public async Task<IActionResult> Index()
-        {/*
-            var applicationDbContext = _context.CipherTexts
-                .Include(c => c.EncType)
-                .Include(c => c.User);
-            return View(await applicationDbContext.ToListAsync());
-            */
+        {
             var res = await _context
-                .CipherTexts
-                .Where(c => c.UserId == GetUserId())
-                .Select(c => new CipherTextViewModel()
+                .Keys
+                .Where(k => k.UserId == GetUserId())
+                .Select(c => new KeyViewModel()
                 {
                     Id = c.Id,
                     Text = c.Text,
-                    Key = c.Key.Text,
-                    EncType = c.Key.EncType
+                    EncType = c.EncType
                 })
                 .ToListAsync();
+
             return View(res);
         }
-       
-        // GET: CipherText/Create
+
+        // GET: Key/Create
         public IActionResult Create()
         {
-            ViewData["KeyId"] = new SelectList(_context.Keys, nameof(Key.Id), nameof(Key.Text));
+            ViewData["EncTypeId"] = new SelectList(_context.EncTypes, nameof(EncType.Id), nameof(EncType.Name));
             return View();
         }
 
-        // POST: CipherText/Create
+        // POST: Key/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CipherTextCreateViewModel CipherTextVM)
+        public async Task<IActionResult> Create(KeyCreateViewModel keyVM)
         {
             if (ModelState.IsValid)
             {
-                var cipherText = new CipherText
+                var key = new Key
                 {
+                    Id = Guid.NewGuid(),
                     UserId = GetUserId(),
-                    Text = CipherTextVM.Text,
-                    KeyId = CipherTextVM.KeyId,
-                    Id = Guid.NewGuid()
+                    EncTypeId = keyVM.EncTypeId,
+                    Text = keyVM.Text
                 };
-
-                _context.Add(cipherText);
+                _context.Add(key);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["KeyId"] = new SelectList(_context.Keys, nameof(Key.Id), nameof(Key.Text));
-            return View(CipherTextVM);
+            ViewData["EncTypeId"] = new SelectList(_context.EncTypes, nameof(EncType.Id), nameof(EncType.Name), keyVM.EncTypeId);
+            return View(keyVM);
         }
-
+        
         public string GetUserId()
         {
             return User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
         }
 
-        // GET: CipherText/Edit/5
+        // GET: Key/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
-            if (id == null || _context.CipherTexts == null)
+            if (id == null || _context.Keys == null)
             {
                 return NotFound();
             }
 
-            //var cipherText = await _context.CipherTexts.FindAsync(id);
-            var cipherText = await _context
-                .CipherTexts
-                .Select(c => new CipherTextEditViewModel()
+            //var key = await _context.Keys.FindAsync(id);
+
+            var key = await _context
+                .Keys
+                .Select(c => new KeyEditViewModel()
                 {
                     Id = c.Id,
-                    KeyId = c.KeyId,
                     Text = c.Text,
+                    EncTypeId = c.EncTypeId
                 }).FirstOrDefaultAsync(c => c.Id == id);
-            if (cipherText == null)
+            if (key == null)
             {
                 return NotFound();
             }
-            ViewData["KeyId"] = new SelectList(_context.Keys, nameof(Key.Id), nameof(Key.Text));
-            return View(cipherText);
+            ViewData["EncTypeId"] = new SelectList(_context.EncTypes, nameof(EncType.Id), nameof(EncType.Name), key.EncTypeId);
+            return View(key);
         }
 
-        // POST: CipherText/Edit/5
+        // POST: Key/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, CipherTextEditViewModel cipherTextVM)
+        public async Task<IActionResult> Edit(Guid id, KeyEditViewModel keyVM)
         {
-            if (id != cipherTextVM.Id)
+            if (id != keyVM.Id)
             {
                 return NotFound();
             }
+            
 
             if (ModelState.IsValid)
             {
-                var cipherText = new CipherText
+                var key = new Key()
                 {
-                    Id = cipherTextVM.Id,
-                    Text = cipherTextVM.Text,
-                    KeyId = cipherTextVM.KeyId,
+                    Id = keyVM.Id,
+                    Text = keyVM.Text,
+                    EncTypeId = keyVM.EncTypeId,
                     UserId = GetUserId()
                 };
+                
                 try
                 {
-                    _context.Update(cipherText);
+                    _context.Update(key);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CipherTextExists(cipherText.Id))
+                    if (!KeyExists(key.Id))
                     {
                         return NotFound();
                     }
@@ -146,65 +141,62 @@ namespace WebApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["KeyId"] = new SelectList(_context.EncTypes, nameof(Key.Id), nameof(Key.Text));
-            return View(cipherTextVM);
+            ViewData["EncTypeId"] = new SelectList(_context.EncTypes, nameof(EncType.Id), nameof(EncType.Name), keyVM.EncTypeId);
+            return View(keyVM);
         }
 
-        // GET: CipherText/Delete/5
+        // GET: Key/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
-            if (id == null || _context.CipherTexts == null)
+            if (id == null || _context.Keys == null)
             {
                 return NotFound();
             }
 
-            /* var cipherText = await _context.CipherTexts
-                .Include(c => c.EncType)
-                .Include(c => c.User)
+            /*
+            var key = await _context.Keys
+                .Include(k => k.EncType)
                 .FirstOrDefaultAsync(m => m.Id == id);
             */
 
-            var cipherText = await _context
-                .CipherTexts
-                .Select(c => new CipherTextDeleteViewModel()
+            var key = await _context
+                .Keys
+                .Select(c => new KeyDeleteViewModel()
                 {
                     Id = c.Id,
                     Text = c.Text,
-                    Key = c.Key.Text,
-                    EncType = c.Key.EncType
+                    EncType = c.EncType
                 }).FirstOrDefaultAsync(c => c.Id == id);
-            
-            if (cipherText == null)
+            if (key == null)
             {
                 return NotFound();
             }
 
-            return View(cipherText);
+            return View(key);
         }
 
-        // POST: CipherText/Delete/5
+        // POST: Key/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            if (_context.CipherTexts == null)
+            if (_context.Keys == null)
             {
-                return Problem("Entity set 'ApplicationDbContext.CipherTexts'  is null.");
+                return Problem("Entity set 'ApplicationDbContext.Keys'  is null.");
             }
-            
-            var cipherText = await _context.CipherTexts.FindAsync(id);
-            if (cipherText != null)
+            var key = await _context.Keys.FindAsync(id);
+            if (key != null)
             {
-                _context.CipherTexts.Remove(cipherText);
+                _context.Keys.Remove(key);
             }
             
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CipherTextExists(Guid id)
+        private bool KeyExists(Guid id)
         {
-          return (_context.CipherTexts?.Any(e => e.Id == id)).GetValueOrDefault();
+          return (_context.Keys?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }
