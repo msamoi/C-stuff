@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Data;
 using WebApp.Models;
+using WebApp.ViewModels;
 
 namespace WebApp.Controllers
 {
@@ -34,6 +35,12 @@ namespace WebApp.Controllers
             var res = await _context
                 .PlainTexts
                 .Where(p => p.UserId == GetUserId())
+                .Select(c => new PlainTextViewModel()
+                {
+                    Id = c.Id,
+                    EncTypeName = c.Key.EncType.Name,
+                    Text = c.Text
+                })
                 .ToListAsync();
             return View(res);
         }
@@ -41,6 +48,7 @@ namespace WebApp.Controllers
         // GET: PlainText/Create
         public IActionResult Create()
         {
+            ViewData["KeyId"] = new SelectList(_context.Keys, nameof(Key.Id), nameof(Key.Text));
             return View();
         }
 
@@ -49,17 +57,23 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Text")] PlainText plainText)
+        public async Task<IActionResult> Create(PlainTextCreateViewModel plainTextVM)
         {
             if (ModelState.IsValid)
             {
-                plainText.UserId = GetUserId();
-                plainText.Id = Guid.NewGuid();
+                var plainText = new PlainText
+                {
+                    UserId = GetUserId(),
+                    Id = Guid.NewGuid(),
+                    Text = plainTextVM.Text,
+                    KeyId = plainTextVM.KeyId,
+                };
                 _context.Add(plainText);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(plainText);
+            ViewData["KeyId"] = new SelectList(_context.Keys, nameof(Key.Id), nameof(Key.Text));
+            return View(plainTextVM);
         }
         
         public string GetUserId()
@@ -75,11 +89,19 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var plainText = await _context.PlainTexts.FindAsync(id);
+            // var plainText = await _context.PlainTexts.FindAsync(id);
+            var plainText = await _context
+                .PlainTexts
+                .Select(c => new PlainTextEditViewModel()
+                {
+                    KeyId = c.KeyId,
+                    Text = c.Text
+                }).FirstOrDefaultAsync(c => c.Id == id);
             if (plainText == null)
             {
                 return NotFound();
             }
+            ViewData["KeyId"] = new SelectList(_context.Keys, nameof(Key.Id), nameof(Key.Text), plainText.KeyId);
             return View(plainText);
         }
 
@@ -88,15 +110,22 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Text")] PlainText plainText)
+        public async Task<IActionResult> Edit(Guid id,PlainTextEditViewModel plainTextVM)
         {
-            if (id != plainText.Id)
+            if (id != plainTextVM.Id)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
+                var plainText = new PlainText()
+                {
+                    Id = plainTextVM.Id,
+                    Text = plainTextVM.Text,
+                    KeyId = plainTextVM.KeyId,
+                    UserId = GetUserId()
+                };
                 try
                 {
                     _context.Update(plainText);
@@ -115,7 +144,8 @@ namespace WebApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(plainText);
+            ViewData["KeyId"] = new SelectList(_context.Keys, nameof(Key.Id), nameof(Key.Text), plainTextVM.KeyId);
+            return View(plainTextVM);
         }
 
         // GET: PlainText/Delete/5
@@ -126,8 +156,14 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var plainText = await _context.PlainTexts
-                .FirstOrDefaultAsync(m => m.Id == id);
+            // var plainText = await _context.PlainTexts.FirstOrDefaultAsync(m => m.Id == id);
+            var plainText = await _context
+                .PlainTexts
+                .Select(c => new PlainTextDeleteViewModel()
+                {
+                    KeyId = c.KeyId,
+                    Text = c.Text
+                }).FirstOrDefaultAsync(c => c.Id == id);
             if (plainText == null)
             {
                 return NotFound();

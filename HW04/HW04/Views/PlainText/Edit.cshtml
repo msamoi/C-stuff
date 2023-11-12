@@ -1,4 +1,4 @@
-@model WebApp.Models.PlainText
+@model WebApp.ViewModels.PlainTextEditViewModel
 
 @{
     ViewData["Title"] = "Edit";
@@ -14,9 +14,13 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
-                <label asp-for="Text" class="control-label"></label>
+                <label asp-for="Text" class="control-label">Plain text</label>
                 <input asp-for="Text" class="form-control" />
                 <span asp-validation-for="Text" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="KeyId" class="control-label">Key</label>
+                <select asp-for="KeyId" class="form-control" asp-items="ViewBag.KeyId"></select>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

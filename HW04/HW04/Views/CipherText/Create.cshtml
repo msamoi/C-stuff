@@ -13,12 +13,12 @@
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Text" class="control-label"></label>
+                <label asp-for="Text" class="control-label">Ciphertext</label>
                 <input asp-for="Text" class="form-control"/>
                 <span asp-validation-for="Text" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="KeyId" class="control-label"></label>
+                <label asp-for="KeyId" class="control-label">Encryption key</label>
                 <select asp-for="KeyId" class="form-control" asp-items="ViewBag.KeyId"></select>
             </div>
             <div class="form-group">
