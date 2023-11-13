@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,8 +7,9 @@ using WebApp.Data;
 using WebApp.Models;
 using WebApp.ViewModels;
 
-namespace HW04.Controllers
+namespace WebApp.Controllers
 {
+    [Authorize]
     public class KeyController : Controller
     {
         private readonly ApplicationDbContext _context;

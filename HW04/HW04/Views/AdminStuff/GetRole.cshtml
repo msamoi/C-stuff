@@ -1,0 +1,20 @@
+@model WebApp.ViewModels.AdminStuffGetRoleVM;
+@{
+    ViewData["Title"] = "Admin tester";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Testing page. Choose a role to be given below:</p>
+</div>
+<div>
+    <form asp-action="GetRole">
+        <div class="form-group">
+            <label asp-for="Role" class="control-label">Role</label>
+            <select asp-for="Role" class="form-control" asp-items="ViewBag.Roles"></select>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Get role!" class="btn btn-primary"/>
+        </div>
+    </form>
+</div>
