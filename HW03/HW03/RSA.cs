@@ -78,8 +78,9 @@ public struct Rsa
 
     /*
      The Encrypt function encrypts a string into ciphertext in blocks.
-     Each block is 4 bytes long. The input string is deconstructed into bytes, and is then encrypted with the public key
-     in 4 byte blocks. The construction of the blocks is detailed above the EncryptBlocks function.
+     Each block's length depends on the size of the n value.. The input string is deconstructed into bytes, and is then
+     encrypted with the public key in byte blocks. The construction of the blocks is detailed above the EncryptBlocks
+     function.
 
      The encrypted blocks don't have a fixed length. To tackle this, during encryption, the longest encrypted block is
      found and every other block is padded with leading zeros, which are easily lost by just parsing the block as a
@@ -95,26 +96,24 @@ public struct Rsa
         var encryptedBlocks = new List<string>();
 
         // variable block length based on the n value
-        // at least 5-digit n values are pretty much mandatory, as encrypting one byte is a 4-digit operation due to how
-        // our block encryption works
-        var blockSize = _n.ToString().Length / 3 - 1;
-        
+        var blockSize = BitConverter.GetBytes(_n).Count(a => a != 0) - 1;
+
         switch (blockSize)
         {
             case < 1:
                 blockSize = 1;
                 break;
-            case > 6:
-                blockSize = 6;
+            case > 7:
+                blockSize = 7;
                 break;
         }
 
         for (var i = 0; i < bytes.Length; i += blockSize)
         {
-            // feed the string into EncryptBlock 6 bytes at a time
+            // feed the string into EncryptBlock
             var tmp = i + blockSize > bytes.Length
-                ? EncryptBlock(bytes[i..]) // if there are less than 6 bytes remaining, just encrypt the remainder
-                : EncryptBlock(bytes[i..(i + blockSize)]); // if there are more than 6 bytes remaining, encrypt the next 6
+                ? EncryptBlock(bytes[i..]) // if the remaining bytes is less than our block size, just encrypt the rest
+                : EncryptBlock(bytes[i..(i + blockSize)]); // if not, take the next block
             if (tmp == null)
             {
                 Console.WriteLine("Encryption failed!");
@@ -192,60 +191,38 @@ public struct Rsa
     /*
      Functionality of EncryptBlock
      Consider the string "AAAA". The letter A is a single-byte value, and the value representing it is 65. Since we have
-     four A-s, the string could be represented as 65,65,65,65. For encryption we consider the entire string a number instead.
-     This number would logically be 65656565, but the numeric values of bytes can be up to 3 digits long, so we pad each
-     repetition with a 0: 065065065065. Since a number can't start with a zero, we also start this number with a "1"
-     by default. Thus, the string "AAAA" will become 1065065065065 for encryption purposes.
-     
-     In case of multi-byte characters, the blocks and characters might not line up. This along with block byte size
-     consistency is the reason for using byte count instead of char count for blocks. When we consider the whole string
-     as an array of bytes for everything except displaying it, then we can easily handle multi-byte characters.
+     four A-s, the string could be represented as 65,65,65,65. As bytes, this would be 1000001 1000001 1000001 1000001.
+     Since we want to make this string into a number, why not just create an ulong with exactly these bytes? e.g.
+     1000001100000110000011000001, which is equal to 137388225. We can then encrypt this number, and later reverse this.
      */
     private string? EncryptBlock(IEnumerable<byte> bytes)
     {
-        var toNumber = _r.Next(1, 10).ToString();
-        
-        foreach (var cByte in bytes)
-        {
-            switch (cByte)
-            {
-                case < 10:
-                    toNumber += "00";
-                    break;
-                case < 100:
-                    toNumber += "0";
-                    break;
-            }
-
-            toNumber += cByte.ToString();
-        }
-
-        if (!ulong.TryParse(toNumber, out var textNum))
-        {
-            Console.WriteLine("Error parsing input!");
-            return null;
-        }
-        
-        if (textNum > _n)
-        {
-            Console.WriteLine("Number to encrypt cannot be bigger than n!");
-            return null;
-        }
+        var textNum = BytesToUInt64(bytes.ToArray());
 
         var outVar = Math.ModPow(textNum, _e, _n);
         return outVar.ToString("X");
     }
 
+    // idea from this answer: https://stackoverflow.com/a/66750355
+    private static ulong BytesToUInt64(byte[] bytes)
+    {
+        if (bytes == null)
+            throw new ArgumentNullException(nameof(bytes));
+        if (bytes.Length > 8)
+            throw new ArgumentException("Must be 8 elements or fewer", nameof(bytes));
+
+        ulong result = 0;
+        for (var i = 0; i < bytes.Length; i++)
+        {
+            result |= (ulong)bytes[i] << (i * 8);
+        }   
+        
+        return result;
+    }
+
     /*
      DecryptBlock takes a string presumed to be a block encrypted by the EncryptBlock function. It decrypts the block,
-     parses it as a string, trims the leading "1" added by EncryptBlock, and parses every 3 digits of the decrypted
-     number as bytes.
-     e.g.: Decrypting the ciphertext yields the number 1065065065065.
-     The function will then trim the 1: 065065065065
-     It will then create a byte array with a third of the length of the number: 12/3 = 4, thus new byte[4]
-     Then the number will be split into pieces of 3 digits, and put into the byte array:
-     bytes = [ 65, 65, 65, 65 ]
-     which are our original bytes.
+     and converts the resulting ulong into a byte array to get our original text bytes back.
      */
     private byte[]? DecryptBlock(string toDecrypt)
     {
@@ -256,16 +233,7 @@ public struct Rsa
         }
 
         var decNum = Math.ModPow(textNum, _d, _n);
-        var toParse = decNum.ToString();
-
-        toParse = toParse.Remove(0, 1);
-        var bytes = new byte[toParse.Length / 3];
-
-        for (var i = 3; i <= toParse.Length; i += 3)
-        {
-            bytes[i / 3 - 1] = (byte)int.Parse(toParse.Substring(i - 3, 3));
-        }
-        
+        var bytes = BitConverter.GetBytes(decNum);
         return bytes;
     }
 }
