@@ -233,7 +233,7 @@ public struct Rsa
         }
 
         var decNum = Math.ModPow(textNum, _d, _n);
-        var bytes = BitConverter.GetBytes(decNum);
+        var bytes = BitConverter.GetBytes(decNum).Where(val => val != 0).ToArray();
         return bytes;
     }
 }
